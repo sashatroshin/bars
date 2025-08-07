@@ -196,7 +196,7 @@
             
             // Добавляем элементы для каждого продукта
             products.forEach((productName, index) => {
-                const placeholder = ['чебурек', 'Драник', 'икра', 'паштет', 'Тушёная говядина в банке', 'Хэшбраун'].some(item => productName.includes(item)) ? 'штук' : 'грамм';
+                const placeholder = ['Чебурек с говядиной 1 штука', 'Драник', 'Кабачковая икра', 'Паштет в баночке', 'Тушёная говядина в банке', 'Хэшбраун'].some(item => productName.includes(item)) ? 'штук' : 'грамм';
                 
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'inventory-item';
