@@ -234,7 +234,8 @@
                 'Вафельная трубочка с варёной сгущёнкой': parseInt(document.getElementById('item5').value) || 0,
                 'Квашеная капуста': parseInt(document.getElementById('item6').value) || 0,
                 'Лук красный маринованный': parseInt(document.getElementById('item7').value) || 0,
-                'timestamp': new Date().toISOString()
+                'timestamp': new Date().toISOString(),
+                'источник': window.location.href
             };
             
             // Проверяем, что все поля заполнены (не равны 0)
