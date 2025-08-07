@@ -164,93 +164,77 @@
         <p class="card__content">
             Укажите количество каждого продукта в граммах. Все поля обязательны для заполнения.
         </p>
-        <div class="card__form">
-            <div class="inventory-item">
-                <div class="item-name">Намазка с картошкой, селёдкой и луком</div>
-                <input type="number" class="quantity-input" id="item1" value="" min="0" placeholder="грамм" 
-                       oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
-                       onkeypress="return event.charCode >= 48 && event.charCode <= 57">
-            </div>
-
-            <div class="inventory-item">
-                <div class="item-name">Намазка сливочный рийет со шпротами</div>
-                <input type="number" class="quantity-input" id="item2" value="" min="0" placeholder="грамм" 
-                       oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
-                       onkeypress="return event.charCode >= 48 && event.charCode <= 57">
-            </div>
-
-            <div class="inventory-item">
-                <div class="item-name">Намазка с сыром чесноком и вяленым томатом</div>
-                <input type="number" class="quantity-input" id="item3" value="" min="0" placeholder="грамм" 
-                       oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
-                       onkeypress="return event.charCode >= 48 && event.charCode <= 57">
-            </div>
-
-            <div class="inventory-item">
-                <div class="item-name">Намазка Форшмак</div>
-                <input type="number" class="quantity-input" id="item4" value="" min="0" placeholder="грамм" 
-                       oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
-                       onkeypress="return event.charCode >= 48 && event.charCode <= 57">
-            </div>
-
-            <div class="inventory-item">
-                <div class="item-name">Вафельная трубочка с варёной сгущёнкой</div>
-                <input type="number" class="quantity-input" id="item5" value="" min="0" placeholder="штук" 
-                       oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
-                       onkeypress="return event.charCode >= 48 && event.charCode <= 57">
-            </div>
-
-            <div class="inventory-item">
-                <div class="item-name">Квашеная капуста</div>
-                <input type="number" class="quantity-input" id="item6" value="" min="0" placeholder="грамм" 
-                       oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
-                       onkeypress="return event.charCode >= 48 && event.charCode <= 57">
-            </div>
-
-            <div class="inventory-item">
-                <div class="item-name">Лук красный маринованный</div>
-                <input type="number" class="quantity-input" id="item7" value="" min="0" placeholder="грамм" 
-                       oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
-                       onkeypress="return event.charCode >= 48 && event.charCode <= 57">
-            </div>
-
+        <div class="card__form" id="inventory-form">
+            <!-- Элементы будут генерироваться динамически -->
             <button class="submit-btn" type="button" onclick="submitInventory()">Отправить данные</button>
             <div id="message"></div>
         </div>
     </div>
 
     <script>
+        // Определяем все продукты в одном месте
+        const products = [
+            'Намазка с картошкой, селёдкой и луком',
+            'Намазка сливочный рийет со шпротами', 
+            'Намазка с сыром чесноком и вяленым томатом',
+            'Намазка Форшмак',
+            'Вафельная трубочка с варёной сгущёнкой',
+            'Квашеная капуста',
+            'Лук красный маринованный'
+        ];
+
+        // Генерируем HTML для формы
+        function generateInventoryForm() {
+            const form = document.getElementById('inventory-form');
+            const submitBtn = form.querySelector('.submit-btn');
+            const messageDiv = form.querySelector('#message');
+            
+            // Очищаем форму, оставляя только кнопку и сообщение
+            form.innerHTML = '';
+            
+            // Добавляем элементы для каждого продукта
+            products.forEach((productName, index) => {
+                const placeholder = productName.includes('трубочка') ? 'штук' : 'грамм';
+                
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'inventory-item';
+                itemDiv.innerHTML = `
+                    <div class="item-name">${productName}</div>
+                    <input type="number" class="quantity-input" id="item${index + 1}" value="" min="0" placeholder="${placeholder}" 
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
+                           onkeypress="return event.charCode >= 48 && event.charCode <= 57">
+                `;
+                form.appendChild(itemDiv);
+            });
+            
+            // Добавляем кнопку и сообщение обратно
+            form.appendChild(submitBtn);
+            form.appendChild(messageDiv);
+        }
+
+        // Генерируем форму при загрузке страницы
+        document.addEventListener('DOMContentLoaded', generateInventoryForm);
+
         // Функция для отправки данных инвентаризации
         async function submitInventory() {
             const messageDiv = document.getElementById('message');
             messageDiv.innerHTML = '';
             
-            // Собираем данные из всех полей с полными названиями как числа
+            // Динамически собираем данные из всех полей
             const inventoryData = {
-                'Намазка с картошкой, селёдкой и луком': parseInt(document.getElementById('item1').value) || 0,
-                'Намазка сливочный рийет со шпротами': parseInt(document.getElementById('item2').value) || 0,
-                'Намазка с сыром чесноком и вяленым томатом': parseInt(document.getElementById('item3').value) || 0,
-                'Намазка Форшмак': parseInt(document.getElementById('item4').value) || 0,
-                'Вафельная трубочка с варёной сгущёнкой': parseInt(document.getElementById('item5').value) || 0,
-                'Квашеная капуста': parseInt(document.getElementById('item6').value) || 0,
-                'Лук красный маринованный': parseInt(document.getElementById('item7').value) || 0,
                 'timestamp': new Date().toISOString(),
                 'источник': window.location.href
             };
             
+            // Добавляем данные для каждого продукта
+            products.forEach((productName, index) => {
+                inventoryData[productName] = parseInt(document.getElementById(`item${index + 1}`).value) || 0;
+            });
+            
             // Проверяем, что все поля заполнены (не равны 0)
             const emptyFields = [];
-            const productNames = [
-                'Намазка с картошкой, селёдкой и луком',
-                'Намазка сливочный рийет со шпротами', 
-                'Намазка с сыром чесноком и вяленым томатом',
-                'Намазка Форшмак',
-                'Вафельная трубочка с варёной сгущёнкой',
-                'Квашеная капуста',
-                'Лук красный маринованный'
-            ];
             
-            for (const productName of productNames) {
+            for (const productName of products) {
                 if (inventoryData[productName] === 0) {
                     emptyFields.push(productName);
                 }
@@ -264,7 +248,7 @@
             try {
                 const webhookUrl = 'https://n8n.troshinsasha.ru/webhook/micro-younst-v1';
                 
-                console.log('Отправляем данные как числа:', inventoryData); // Проверяем типы данных
+                console.log('Отправляем данные как числа:', inventoryData);
                 
                 const response = await fetch(webhookUrl, {
                     method: 'POST',
@@ -281,7 +265,7 @@
                 if (response.ok) {
                     messageDiv.innerHTML = '<div class="success">Данные успешно отправлены!</div>';
                     // Очищаем форму после успешной отправки
-                    for (let i = 1; i <= 7; i++) {
+                    for (let i = 1; i <= products.length; i++) {
                         document.getElementById(`item${i}`).value = '';
                     }
                 } else {
