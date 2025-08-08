@@ -162,7 +162,7 @@
     <div class="card">
         <span class="card__title">Инвентаризация</span>
         <p class="card__content">
-            ⚠️ Укажите количество каждого продукта в граммах или штуках. <br> ⚠️ Без запятых, точек или пробелов. <br> ⚠️ Все поля обязательны для заполнения.
+            ⚠️⚠️⚠️ <br>Укажите количество каждого продукта в граммах или штуках. <br> Без запятых, точек или пробелов. <br> Все поля обязательны для заполнения.
         </p>
         <div class="card__form" id="inventory-form">
             <!-- Элементы будут генерироваться динамически -->
@@ -178,8 +178,8 @@
                 название: 'Чебурек с говядиной 1 штука',
                 единица_измерения: 'штук',
                 минимальное_количество: 5,
-                чат_уведомления: '@kitchen_chat',
-                тема_уведомления: 'Низкий остаток: Чебуреки',
+                чат_уведомления: '-1002093049202',
+                тема_уведомления: '50955',
                 дополнительные_поля: {}
             },
             {
@@ -218,8 +218,8 @@
                 название: 'Кабачковая икра',
                 единица_измерения: 'штук',
                 минимальное_количество: 3,
-                чат_уведомления: '@kitchen_chat',
-                тема_уведомления: 'Низкий остаток: Кабачковая икра',
+                чат_уведомления: '-1002093049202',
+                тема_уведомления: '50955',
                 дополнительные_поля: {}
             },
             {
@@ -281,7 +281,20 @@
         // Функция для отправки данных инвентаризации
         async function submitInventory() {
             const messageDiv = document.getElementById('message');
+            const submitBtn = document.querySelector('.submit-btn');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            
+            // Предотвращаем повторную отправку
+            if (submitBtn.disabled) {
+                return;
+            }
+            
             messageDiv.innerHTML = '';
+            
+            // Блокируем кнопку и показываем загрузку
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Отправляется...';
+            loadingOverlay.classList.add('active');
             
             // Динамически собираем данные из всех полей
             const inventoryData = {
@@ -290,21 +303,25 @@
             };
             
             // Добавляем данные для каждого продукта
-            products.forEach((productName, index) => {
-                inventoryData[productName] = parseInt(document.getElementById(`item${index + 1}`).value) || 0;
+            products.forEach((product, index) => {
+                inventoryData[product.название] = parseInt(document.getElementById(`item${index + 1}`).value) || 0;
             });
             
             // Проверяем, что все поля заполнены (не равны 0)
             const emptyFields = [];
             
-            for (const productName of products) {
-                if (inventoryData[productName] === 0) {
-                    emptyFields.push(productName);
+            for (const product of products) {
+                if (inventoryData[product.название] === 0) {
+                    emptyFields.push(product.название);
                 }
             }
             
             if (emptyFields.length > 0) {
                 messageDiv.innerHTML = '<div class="error">Все поля обязательны для заполнения! Укажите количество для всех продуктов.</div>';
+                // Разблокируем кнопку при ошибке валидации
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Отправить данные';
+                loadingOverlay.classList.remove('active');
                 return;
             }
             
@@ -325,17 +342,33 @@
                 
                 console.log('Статус ответа:', response.status);
                 
+                // Скрываем загрузку
+                loadingOverlay.classList.remove('active');
+                
                 if (response.ok) {
+                    // Показываем конфетти
+                    createConfetti();
+                    
                     messageDiv.innerHTML = '<div class="success">Данные успешно отправлены!</div>';
+                    
                     // Очищаем форму после успешной отправки
                     for (let i = 1; i <= products.length; i++) {
                         document.getElementById(`item${i}`).value = '';
                     }
+                    
+                    // Разблокируем кнопку через 3 секунды
+                    setTimeout(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Отправить данные';
+                    }, 3000);
                 } else {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
             } catch (error) {
                 console.error('Детали ошибки:', error);
+                
+                // Скрываем загрузку при ошибке
+                loadingOverlay.classList.remove('active');
                 
                 if (error.name === 'TypeError' && error.message.includes('fetch')) {
                     messageDiv.innerHTML = '<div class="error">Ошибка CORS или сетевая ошибка. Проверьте настройки webhook.</div>';
@@ -343,9 +376,42 @@
                     messageDiv.innerHTML = `<div class="error">Ошибка: ${error.message}</div>`;
                 }
                 
+                // Разблокируем кнопку при ошибке
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Отправить данные';
+                
                 console.log('Данные инвентаризации:', inventoryData);
             }
         }
+        
+        // Функция для создания анимации конфетти
+        function createConfetti() {
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 3 + 's';
+                    document.body.appendChild(confetti);
+                    
+                    // Удаляем элемент после анимации
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 3000);
+                }, i * 50);
+            }
+        }
+        <!-- Добавьте перед закрывающим тегом </body> -->
+        <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <h3>Отправляем данные...</h3>
+        <p>Пожалуйста, подождите</p>
+        </div>
+        </div>
     </script>
 </body>
 </html>
