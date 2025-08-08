@@ -406,7 +406,11 @@
             const submitBtn = form.querySelector('.submit-btn');
             const messageDiv = form.querySelector('#message');
             
-            // Очищаем форму, оставляя только кнопку и сообщение
+            // Сохраняем кнопку и сообщение
+            const submitBtnClone = submitBtn.cloneNode(true);
+            const messageDivClone = messageDiv.cloneNode(true);
+            
+            // Очищаем форму
             form.innerHTML = '';
             
             // Добавляем элементы для каждого продукта
@@ -423,8 +427,8 @@
             });
             
             // Добавляем кнопку и сообщение обратно
-            form.appendChild(submitBtn);
-            form.appendChild(messageDiv);
+            form.appendChild(submitBtnClone);
+            form.appendChild(messageDivClone);
         }
 
         // Генерируем форму при загрузке страницы
@@ -556,14 +560,15 @@
                 }, i * 50);
             }
         }
+        </script>
+        
         <!-- Добавьте перед закрывающим тегом </body> -->
         <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-content">
-        <div class="loading-spinner"></div>
-        <h3>Отправляем данные...</h3>
-        <p>Пожалуйста, подождите</p>
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <h3>Отправляем данные...</h3>
+                <p>Пожалуйста, подождите</p>
+            </div>
         </div>
-        </div>
-    </script>
-</body>
-</html>
+    </body>
+    </html>
