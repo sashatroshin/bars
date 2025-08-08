@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Форма инвентаризации</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .card {
+            width: 500px;
+            padding: 30px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card > * {
+            margin: 0;
+        }
+
+        .card__title {
+            font-size: 28px;
+            font-weight: 900;
+            color: #333;
+        }
+
+        .card__content {
+            font-size: 16px;
+            line-height: 22px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .card__form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .inventory-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .inventory-item:hover {
+            border-color: #c0c0c0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .item-name {
+            flex: 1;
+            text-align: left;
+            font-size: 15px;
+            color: #2c3e50;
+            margin-right: 20px;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .quantity-input {
+            width: 120px;
+            text-align: center;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            background: #ffffff;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .quantity-input:focus {
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15), 0 2px 8px rgba(0, 0, 0, 0.15);
+            outline: none;
+            transform: scale(1.02);
+        }
+
+        .quantity-input:hover {
+            border-color: #b0bec5;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+        }
+
+        .quantity-input::placeholder {
+            color: #95a5a6;
+            font-weight: 400;
+        }
+
+        .quantity-input:invalid {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.15);
+        }
+
+        .quantity-input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        .submit-btn {
+            border: 0;
+            background: #111;
+            color: #fff;
+            padding: 15px 30px;
+            border-radius: 14px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            opacity: 0.8;
+        }
+
+        .submit-btn:active {
+            transform: translateY(1px);
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .success {
+            color: #27ae60;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <span class="card__title">Инвентаризация</span>
+        <p class="card__content">
+            ⚠️ Укажите количество каждого продукта в граммах или штуках. <br> ⚠️ Без запятых, точек или пробелов. <br> ⚠️ Все поля обязательны для заполнения.
+        </p>
+        <div class="card__form" id="inventory-form">
+            <!-- Элементы будут генерироваться динамически -->
+            <button class="submit-btn" type="button" onclick="submitInventory()">Отправить данные</button>
+            <div id="message"></div>
+        </div>
+    </div>
+
+    <script>
+        // Определяем все продукты в одном месте
+        const products = [
+            {
+                название: 'Чебурек с говядиной 1 штука',
+                единица_измерения: 'штук',
+                минимальное_количество: 5,
+                чат_уведомления: '@kitchen_chat',
+                тема_уведомления: 'Низкий остаток: Чебуреки',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Грудинка свиная в сметане',
+                единица_измерения: 'грамм',
+                минимальное_количество: 500,
+                чат_уведомления: '@kitchen_chat',
+                тема_уведомления: 'Низкий остаток: Грудинка',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Драник',
+                единица_измерения: 'штук',
+                минимальное_количество: 10,
+                чат_уведомления: '@kitchen_chat',
+                тема_уведомления: 'Низкий остаток: Драники',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Солянка без воды',
+                единица_измерения: 'грамм',
+                минимальное_количество: 300,
+                чат_уведомления: '@kitchen_chat',
+                тема_уведомления: 'Низкий остаток: Солянка',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Гороховый крем-суп',
+                единица_измерения: 'грамм',
+                минимальное_количество: 400,
+                чат_уведомления: '@kitchen_chat',
+                тема_уведомления: 'Низкий остаток: Гороховый суп',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Кабачковая икра',
+                единица_измерения: 'штук',
+                минимальное_количество: 3,
+                чат_уведомления: '@kitchen_chat',
+                тема_уведомления: 'Низкий остаток: Кабачковая икра',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Паштет в баночке',
+                единица_измерения: 'штук',
+                минимальное_количество: 5,
+                чат_уведомления: '@kitchen_chat',
+                тема_уведомления: 'Низкий остаток: Паштет',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Тушёная говядина в банке',
+                единица_измерения: 'штук',
+                минимальное_количество: 4,
+                чат_уведомления: '@kitchen_chat',
+                тема_уведомления: 'Низкий остаток: Тушёная говядина',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Хэшбраун',
+                единица_измерения: 'штук',
+                минимальное_количество: 8,
+                чат_уведомления: '@kitchen_chat',
+                тема_уведомления: 'Низкий остаток: Хэшбраун',
+                дополнительные_поля: {}
+            }
+        ];
+
+        // Генерируем HTML для формы
+        function generateInventoryForm() {
+            const form = document.getElementById('inventory-form');
+            const submitBtn = form.querySelector('.submit-btn');
+            const messageDiv = form.querySelector('#message');
+            
+            // Очищаем форму, оставляя только кнопку и сообщение
+            form.innerHTML = '';
+            
+            // Добавляем элементы для каждого продукта
+            products.forEach((product, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'inventory-item';
+                itemDiv.innerHTML = `
+                    <div class="item-name">${product.название}</div>
+                    <input type="number" class="quantity-input" id="item${index + 1}" value="" min="0" placeholder="${product.единица_измерения}" 
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
+                           onkeypress="return event.charCode >= 48 && event.charCode <= 57">
+                `;
+                form.appendChild(itemDiv);
+            });
+            
+            // Добавляем кнопку и сообщение обратно
+            form.appendChild(submitBtn);
+            form.appendChild(messageDiv);
+        }
+
+        // Генерируем форму при загрузке страницы
+        document.addEventListener('DOMContentLoaded', generateInventoryForm);
+
+        // Функция для отправки данных инвентаризации
+        async function submitInventory() {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = '';
+            
+            // Динамически собираем данные из всех полей
+            const inventoryData = {
+                'timestamp': new Date().toISOString(),
+                'источник': window.location.href
+            };
+            
+            // Добавляем данные для каждого продукта
+            products.forEach((productName, index) => {
+                inventoryData[productName] = parseInt(document.getElementById(`item${index + 1}`).value) || 0;
+            });
+            
+            // Проверяем, что все поля заполнены (не равны 0)
+            const emptyFields = [];
+            
+            for (const productName of products) {
+                if (inventoryData[productName] === 0) {
+                    emptyFields.push(productName);
+                }
+            }
+            
+            if (emptyFields.length > 0) {
+                messageDiv.innerHTML = '<div class="error">Все поля обязательны для заполнения! Укажите количество для всех продуктов.</div>';
+                return;
+            }
+            
+            try {
+                const webhookUrl = 'https://n8n.troshinsasha.ru/webhook/micro-younst-v1';
+                
+                console.log('Отправляем данные как числа:', inventoryData);
+                
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify(inventoryData)
+                });
+                
+                console.log('Статус ответа:', response.status);
+                
+                if (response.ok) {
+                    messageDiv.innerHTML = '<div class="success">Данные успешно отправлены!</div>';
+                    // Очищаем форму после успешной отправки
+                    for (let i = 1; i <= products.length; i++) {
+                        document.getElementById(`item${i}`).value = '';
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                console.error('Детали ошибки:', error);
+                
+                if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    messageDiv.innerHTML = '<div class="error">Ошибка CORS или сетевая ошибка. Проверьте настройки webhook.</div>';
+                } else {
+                    messageDiv.innerHTML = `<div class="error">Ошибка: ${error.message}</div>`;
+                }
+                
+                console.log('Данные инвентаризации:', inventoryData);
+            }
+        }
+    </script>
+</body>
+</html>
