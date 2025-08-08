@@ -439,21 +439,27 @@
             
             // Обрабатываем каждый продукт
             window.products.forEach((product, index) => {
-                const inputValue = parseInt(document.getElementById(`item${index + 1}`).value) || 0;
+                const inputElement = document.getElementById(`item${index + 1}`);
+                const inputValue = inputElement.value.trim();
                 
-                if (inputValue === 0) {
+                // Проверяем, что поле заполнено (не пустое)
+                if (inputValue === '') {
                     emptyFields.push(product.название);
-                } else {
-                    // Обновляем остаток в объекте продукта
-                    product.остаток = inputValue;
-                    
-                    // Добавляем полную копию продукта в массив
-                    products.push({...product});
+                    return;
                 }
+                
+                // Преобразуем в число (может быть 0)
+                const quantity = parseInt(inputValue) || 0;
+                
+                // Обновляем остаток в объекте продукта
+                product.остаток = quantity;
+                
+                // Добавляем полную копию продукта в массив
+                products.push({...product});
             });
             
             if (emptyFields.length > 0) {
-                messageDiv.innerHTML = '<div class="error">Все поля обязательны для заполнения! Укажите количество для всех продуктов.</div>';
+                messageDiv.innerHTML = '<div class="error">Все поля обязательны для заполнения! Укажите количество для всех продуктов (можно указать 0).</div>';
                 // ИСПРАВЛЕНИЕ: Разблокируем кнопку при ошибке валидации
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Отправить данные';
