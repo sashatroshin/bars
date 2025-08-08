@@ -438,7 +438,7 @@
         async function submitInventory() {
             const messageDiv = document.getElementById('message');
             const submitBtn = document.querySelector('.submit-btn');
-            const loadingOverlay = document.getElementById('loadingOverlay');
+            // Удаляем эту строку: const loadingOverlay = document.getElementById('loadingOverlay');
             
             // Предотвращаем повторную отправку
             if (submitBtn.disabled) {
@@ -447,10 +447,10 @@
             
             messageDiv.innerHTML = '';
             
-            // Блокируем кнопку и показываем загрузку
+            // Блокируем кнопку
             submitBtn.disabled = true;
             submitBtn.textContent = 'Отправляется...';
-            loadingOverlay.classList.add('active');
+            // Удаляем эту строку: loadingOverlay.classList.add('active');
             
             // Динамически собираем данные из всех полей
             const inventoryData = {
@@ -477,12 +477,12 @@
                 // Разблокируем кнопку при ошибке валидации
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Отправить данные';
-                loadingOverlay.classList.remove('active');
+                // Удаляем эту строку: loadingOverlay.classList.remove('active');
                 return;
             }
             
             try {
-                const webhookUrl = 'https://n8n.troshinsasha.ru/webhook/micro-younst-v1';
+                const webhookUrl = 'https://n8n.troshinsasha.ru/webhook/inventory';
                 
                 console.log('Отправляем данные как числа:', inventoryData);
                 
@@ -498,8 +498,7 @@
                 
                 console.log('Статус ответа:', response.status);
                 
-                // Скрываем загрузку
-                loadingOverlay.classList.remove('active');
+                // Удаляем эту строку: loadingOverlay.classList.remove('active');
                 
                 if (response.ok) {
                     // Показываем конфетти
@@ -523,8 +522,7 @@
             } catch (error) {
                 console.error('Детали ошибки:', error);
                 
-                // Скрываем загрузку при ошибке
-                loadingOverlay.classList.remove('active');
+                // Удаляем эту строку: loadingOverlay.classList.remove('active');
                 
                 if (error.name === 'TypeError' && error.message.includes('fetch')) {
                     messageDiv.innerHTML = '<div class="error">Ошибка CORS или сетевая ошибка. Проверьте настройки webhook.</div>';
@@ -560,15 +558,6 @@
                 }, i * 50);
             }
         }
-        </script>
-        
-        <!-- Добавьте перед закрывающим тегом </body> -->
-        <div class="loading-overlay" id="loadingOverlay">
-            <div class="loading-content">
-                <div class="loading-spinner"></div>
-                <h3>Отправляем данные...</h3>
-                <p>Пожалуйста, подождите</p>
-            </div>
-        </div>
+    </script>
     </body>
     </html>
