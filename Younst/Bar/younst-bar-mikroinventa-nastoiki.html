@@ -173,7 +173,7 @@
 
     <script>
         // Определяем все продукты в одном месте
-        const products = [
+        window.products = [
             {
                 название: 'Лимончелло + Яблоко',
                 единица_измерения: 'штук',
@@ -397,7 +397,7 @@
             form.innerHTML = '';
             
             // Добавляем элементы для каждого продукта
-            products.forEach((product, index) => {
+            window.products.forEach((product, index) => {
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'inventory-item';
                 itemDiv.innerHTML = `
@@ -453,6 +453,7 @@
             
             if (emptyFields.length > 0) {
                 messageDiv.innerHTML = '<div class="error">Все поля обязательны для заполнения! Укажите количество для всех продуктов.</div>';
+                // ИСПРАВЛЕНИЕ: Разблокируем кнопку при ошибке валидации
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Отправить данные';
                 return;
