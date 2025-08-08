@@ -156,6 +156,7 @@
             font-size: 14px;
             margin-top: 10px;
         }
+        
     </style>
 </head>
 <body>
@@ -180,7 +181,7 @@
                 минимальное_количество: 4,
                 остаток: 0,
                 чат_уведомления: '-1002093049202',
-                тема_уведомления: '50955',
+                тема_уведомления: '50956',
                 дополнительные_поля: {}
             },
             {
@@ -483,8 +484,8 @@
                 console.log('Статус ответа:', response.status);
                 
                 if (response.ok) {
-                    // Показываем конфетти
-                    createConfetti();
+                    // Меняем текст кнопки на "Отправлено"
+                    submitBtn.textContent = 'Отправлено';
                     
                     messageDiv.innerHTML = '<div class="success">Данные успешно отправлены!</div>';
                     
@@ -523,26 +524,6 @@
             }
         }
         
-        // Функция для создания анимации конфетти
-        function createConfetti() {
-            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'];
-            
-            for (let i = 0; i < 50; i++) {
-                setTimeout(() => {
-                    const confetti = document.createElement('div');
-                    confetti.className = 'confetti';
-                    confetti.style.left = Math.random() * 100 + 'vw';
-                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                    confetti.style.animationDelay = Math.random() * 3 + 's';
-                    document.body.appendChild(confetti);
-                    
-                    // Удаляем элемент после анимации
-                    setTimeout(() => {
-                        confetti.remove();
-                    }, 3000);
-                }, i * 50);
-            }
-        }
     </script>
     </body>
     </html>
