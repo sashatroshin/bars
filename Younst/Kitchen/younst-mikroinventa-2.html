@@ -156,13 +156,14 @@
             font-size: 14px;
             margin-top: 10px;
         }
+        
     </style>
 </head>
 <body>
     <div class="card">
         <span class="card__title">Инвентаризация</span>
         <p class="card__content">
-            ⚠️ Укажите количество каждого продукта в граммах или штуках. <br> ⚠️ Без запятых, точек или пробелов. <br> ⚠️ Все поля обязательны для заполнения.
+            ⚠️⚠️⚠️ <br>Укажите количество каждого продукта в граммах или штуках. <br> Без запятых, точек или пробелов. <br> Все поля обязательны для заполнения.
         </p>
         <div class="card__form" id="inventory-form">
             <!-- Элементы будут генерироваться динамически -->
@@ -173,17 +174,90 @@
 
     <script>
         // Определяем все продукты в одном месте
-        const products = [
-            'Чебурек с говядиной 1 штука',
-            'Грудинка свиная в сметане', 
-            'Драник',
-            'Солянка без воды',
-            'Гороховый крем-суп',
-            'Кабачковая икра',
-            'Паштет в баночке',
-            'Тушёная говядина в банке',
-            'Хэшбраун'
-        ];
+            window.products = [
+            {
+                название: 'Чебурек с говядиной',
+                единица_измерения: 'штук',
+                минимальное_количество: 60,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '987',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Грудинка свиная в сметане',
+                единица_измерения: 'грамм',
+                минимальное_количество: 500,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '987',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Драник',
+                единица_измерения: 'штук',
+                минимальное_количество: 20,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '987',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Солянка без воды',
+                единица_измерения: 'стаканов',
+                минимальное_количество: 15,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '987',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Гороховый крем-суп',
+                единица_измерения: 'стаканов',
+                минимальное_количество: 15,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '987',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Кабачковая икра',
+                единица_измерения: 'банок',
+                минимальное_количество: 10,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '987',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Паштет',
+                единица_измерения: 'банок',
+                минимальное_количество: 15,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '987',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Тушёная говядина',
+                единица_измерения: 'банок',
+                минимальное_количество: 10,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '987',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Хэшбраун',
+                единица_измерения: 'штук',
+                минимальное_количество: 30,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '987',
+                дополнительные_поля: {}
+            }
+            ];
+
 
         // Генерируем HTML для формы
         function generateInventoryForm() {
@@ -191,18 +265,20 @@
             const submitBtn = form.querySelector('.submit-btn');
             const messageDiv = form.querySelector('#message');
             
-            // Очищаем форму, оставляя только кнопку и сообщение
+            // Сохраняем кнопку и сообщение
+            const submitBtnClone = submitBtn.cloneNode(true);
+            const messageDivClone = messageDiv.cloneNode(true);
+            
+            // Очищаем форму
             form.innerHTML = '';
             
             // Добавляем элементы для каждого продукта
-            products.forEach((productName, index) => {
-                const placeholder = ['Чебурек с говядиной 1 штука', 'Драник', 'Кабачковая икра', 'Паштет в баночке', 'Тушёная говядина в банке', 'Хэшбраун'].some(item => productName.includes(item)) ? 'штук' : 'грамм';
-                
+            window.products.forEach((product, index) => {
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'inventory-item';
                 itemDiv.innerHTML = `
-                    <div class="item-name">${productName}</div>
-                    <input type="number" class="quantity-input" id="item${index + 1}" value="" min="0" placeholder="${placeholder}" 
+                    <div class="item-name">${product.название}</div>
+                    <input type="number" class="quantity-input" id="item${index + 1}" value="" min="0" placeholder="${product.единица_измерения}" 
                            oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
                            onkeypress="return event.charCode >= 48 && event.charCode <= 57">
                 `;
@@ -210,8 +286,8 @@
             });
             
             // Добавляем кнопку и сообщение обратно
-            form.appendChild(submitBtn);
-            form.appendChild(messageDiv);
+            form.appendChild(submitBtnClone);
+            form.appendChild(messageDivClone);
         }
 
         // Генерируем форму при загрузке страницы
@@ -219,38 +295,62 @@
 
         // Функция для отправки данных инвентаризации
         async function submitInventory() {
+            const submitBtn = document.querySelector('.submit-btn');
             const messageDiv = document.getElementById('message');
-            messageDiv.innerHTML = '';
             
-            // Динамически собираем данные из всех полей
-            const inventoryData = {
-                'timestamp': new Date().toISOString(),
-                'источник': window.location.href
+            // Блокируем кнопку
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Отправляется...';
+            
+            // Метаданные отдельно
+            const metadata = {
+                timestamp: new Date().toISOString(),
+                источник: window.location.href
             };
             
-            // Добавляем данные для каждого продукта
-            products.forEach((productName, index) => {
-                inventoryData[productName] = parseInt(document.getElementById(`item${index + 1}`).value) || 0;
-            });
-            
-            // Проверяем, что все поля заполнены (не равны 0)
+            // Массив продуктов для пакетной обработки
+            const products = [];
             const emptyFields = [];
             
-            for (const productName of products) {
-                if (inventoryData[productName] === 0) {
-                    emptyFields.push(productName);
+            // Обрабатываем каждый продукт
+            window.products.forEach((product, index) => {
+                const inputElement = document.getElementById(`item${index + 1}`);
+                const inputValue = inputElement.value.trim();
+                
+                // Проверяем, что поле заполнено (не пустое)
+                if (inputValue === '') {
+                    emptyFields.push(product.название);
+                    return;
                 }
-            }
+                
+                // Преобразуем в число (может быть 0)
+                const quantity = parseInt(inputValue) || 0;
+                
+                // Обновляем остаток в объекте продукта
+                product.остаток = quantity;
+                
+                // Добавляем полную копию продукта в массив
+                products.push({...product});
+            });
             
             if (emptyFields.length > 0) {
-                messageDiv.innerHTML = '<div class="error">Все поля обязательны для заполнения! Укажите количество для всех продуктов.</div>';
+                messageDiv.innerHTML = '<div class="error">Все поля обязательны для заполнения! Укажите количество для всех продуктов (можно указать 0).</div>';
+                // ИСПРАВЛЕНИЕ: Разблокируем кнопку при ошибке валидации
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Отправить данные';
                 return;
             }
             
+            // Финальная структура данных для n8n
+            const inventoryData = {
+                metadata: metadata,
+                products: products
+            };
+            
             try {
-                const webhookUrl = 'https://n8n.troshinsasha.ru/webhook/micro-younst-v1';
+                const webhookUrl = 'https://n8n.troshinsasha.ru/webhook/inventory';
                 
-                console.log('Отправляем данные как числа:', inventoryData);
+                console.log('Отправляем оптимизированные данные для n8n:', inventoryData);
                 
                 const response = await fetch(webhookUrl, {
                     method: 'POST',
@@ -265,11 +365,26 @@
                 console.log('Статус ответа:', response.status);
                 
                 if (response.ok) {
+                    // Меняем текст кнопки на "Отправлено"
+                    submitBtn.textContent = 'Отправлено';
+                    
                     messageDiv.innerHTML = '<div class="success">Данные успешно отправлены!</div>';
+                    
                     // Очищаем форму после успешной отправки
-                    for (let i = 1; i <= products.length; i++) {
+                    for (let i = 1; i <= window.products.length; i++) {
                         document.getElementById(`item${i}`).value = '';
                     }
+                    
+                    // Сбрасываем остатки в объектах продуктов
+                    window.products.forEach(product => {
+                        product.остаток = 0;
+                    });
+                    
+                    // Разблокируем кнопку через 3 секунды
+                    setTimeout(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Отправить данные';
+                    }, 3000);
                 } else {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
@@ -282,9 +397,14 @@
                     messageDiv.innerHTML = `<div class="error">Ошибка: ${error.message}</div>`;
                 }
                 
+                // Разблокируем кнопку при ошибке
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Отправить данные';
+                
                 console.log('Данные инвентаризации:', inventoryData);
             }
         }
+        
     </script>
-</body>
-</html>
+    </body>
+    </html>
