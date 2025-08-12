@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Форма инвентаризации - заготовки для настоек</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .card {
+            width: 500px;
+            padding: 30px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card > * {
+            margin: 0;
+        }
+
+        .card__title {
+            font-size: 28px;
+            font-weight: 900;
+            color: #333;
+        }
+
+        .card__content {
+            font-size: 16px;
+            line-height: 22px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .card__form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .inventory-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .inventory-item:hover {
+            border-color: #c0c0c0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .item-name {
+            flex: 1;
+            text-align: left;
+            font-size: 15px;
+            color: #2c3e50;
+            margin-right: 20px;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .quantity-input {
+            width: 120px;
+            text-align: center;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            background: #ffffff;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .quantity-input:focus {
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15), 0 2px 8px rgba(0, 0, 0, 0.15);
+            outline: none;
+            transform: scale(1.02);
+        }
+
+        .quantity-input:hover {
+            border-color: #b0bec5;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+        }
+
+        .quantity-input::placeholder {
+            color: #95a5a6;
+            font-weight: 400;
+        }
+
+        .quantity-input:invalid {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.15);
+        }
+
+        .quantity-input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        .submit-btn {
+            border: 0;
+            background: #111;
+            color: #fff;
+            padding: 15px 30px;
+            border-radius: 14px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            opacity: 0.8;
+        }
+
+        .submit-btn:active {
+            transform: translateY(1px);
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .success {
+            color: #27ae60;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="card">
+        <span class="card__title">Инвентаризация</span>
+        <p class="card__content">
+            ⚠️⚠️⚠️ <br>Укажите количество каждого продукта в граммах или штуках. <br> Без запятых, точек или пробелов. <br> Все поля обязательны для заполнения.
+        </p>
+        <div class="card__form" id="inventory-form">
+            <!-- Элементы будут генерироваться динамически -->
+            <button class="submit-btn" type="button" onclick="submitInventory()">Отправить данные</button>
+            <div id="message"></div>
+        </div>
+    </div>
+
+    <script>
+        // Определяем все продукты в одном месте
+            window.products = [
+            {
+                название: 'Лимончелло',
+                единица_измерения: 'литров',
+                минимальное_количество: 8,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Перцовка',
+                единица_измерения: 'литров',
+                минимальное_количество: 2,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Чесночная',
+                единица_измерения: 'литров',
+                минимальное_количество: 2,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Лимончелло + Малина',
+                единица_измерения: 'литров',
+                минимальное_количество: 6,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Смородина',
+                единица_измерения: 'литров',
+                минимальное_количество: 3,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Грейпфрут + Розмарин',
+                единица_измерения: 'литров',
+                минимальное_количество: 3,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Лимончелло + Яблоко',
+                единица_измерения: 'литров',
+                минимальное_количество: 8,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Облепиха + Имбирь',
+                единица_измерения: 'литров',
+                минимальное_количество: 3,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Клюква',
+                единица_измерения: 'литров',
+                минимальное_количество: 3,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Буренка',
+                единица_измерения: 'литров',
+                минимальное_количество: 6,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Лимончелло + Кокос',
+                единица_измерения: 'литров',
+                минимальное_количество: 3,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Сливочный шоколад',
+                единица_измерения: 'литров',
+                минимальное_количество: 5,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Малина + Базилик',
+                единица_измерения: 'литров',
+                минимальное_количество: 6,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Вишня',
+                единица_измерения: 'литров',
+                минимальное_количество: 5,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Хреновуха',
+                единица_измерения: 'литров',
+                минимальное_количество: 3,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Черника + Ежевика',
+                единица_измерения: 'литров',
+                минимальное_количество: 5,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Сгущенка + Кофе',
+                единица_измерения: 'литров',
+                минимальное_количество: 5,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Томат + Чили',
+                единица_измерения: 'литров',
+                минимальное_количество: 5,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Яблочный пирог',
+                единица_измерения: 'литров',
+                минимальное_количество: 5,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Джин + Жимолость + Базилик',
+                единица_измерения: 'литров',
+                минимальное_количество: 2,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Джин + Черная смородина + Лаванда',
+                единица_измерения: 'литров',
+                минимальное_количество: 2,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Джин + Шиповник + Гвоздика',
+                единица_измерения: 'литров',
+                минимальное_количество: 2,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Джин + Малина',
+                единица_измерения: 'литров',
+                минимальное_количество: 2,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Настойка на кильке',
+                единица_измерения: 'литров',
+                минимальное_количество: 3,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Гранатовая водка',
+                единица_измерения: 'литра',
+                минимальное_количество: 3,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            },
+            {
+                название: 'Сангрита',
+                единица_измерения: 'бутылок',
+                минимальное_количество: 21,
+                остаток: 0,
+                чат_уведомления: '2093049202',
+                тема_уведомления: '50955',
+                дополнительные_поля: {}
+            }
+            ];
+
+
+        // Генерируем HTML для формы
+        function generateInventoryForm() {
+            const form = document.getElementById('inventory-form');
+            const submitBtn = form.querySelector('.submit-btn');
+            const messageDiv = form.querySelector('#message');
+            
+            // Сохраняем кнопку и сообщение
+            const submitBtnClone = submitBtn.cloneNode(true);
+            const messageDivClone = messageDiv.cloneNode(true);
+            
+            // Очищаем форму
+            form.innerHTML = '';
+            
+            // Добавляем элементы для каждого продукта
+            window.products.forEach((product, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'inventory-item';
+                itemDiv.innerHTML = `
+                    <div class="item-name">${product.название}</div>
+                    <input type="number" class="quantity-input" id="item${index + 1}" value="" min="0" placeholder="${product.единица_измерения}" 
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
+                           onkeypress="return event.charCode >= 48 && event.charCode <= 57">
+                `;
+                form.appendChild(itemDiv);
+            });
+            
+            // Добавляем кнопку и сообщение обратно
+            form.appendChild(submitBtnClone);
+            form.appendChild(messageDivClone);
+        }
+
+        // Генерируем форму при загрузке страницы
+        document.addEventListener('DOMContentLoaded', generateInventoryForm);
+
+        // Функция для отправки данных инвентаризации
+        async function submitInventory() {
+            const submitBtn = document.querySelector('.submit-btn');
+            const messageDiv = document.getElementById('message');
+            
+            // Блокируем кнопку
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Отправляется...';
+            
+            // Метаданные отдельно
+            const metadata = {
+                timestamp: new Date().toISOString(),
+                источник: window.location.href
+            };
+            
+            // Массив продуктов для пакетной обработки
+            const products = [];
+            const emptyFields = [];
+            
+            // Обрабатываем каждый продукт
+            window.products.forEach((product, index) => {
+                const inputElement = document.getElementById(`item${index + 1}`);
+                const inputValue = inputElement.value.trim();
+                
+                // Проверяем, что поле заполнено (не пустое)
+                if (inputValue === '') {
+                    emptyFields.push(product.название);
+                    return;
+                }
+                
+                // Преобразуем в число (может быть 0)
+                const quantity = parseInt(inputValue) || 0;
+                
+                // Обновляем остаток в объекте продукта
+                product.остаток = quantity;
+                
+                // Добавляем полную копию продукта в массив
+                products.push({...product});
+            });
+            
+            if (emptyFields.length > 0) {
+                messageDiv.innerHTML = '<div class="error">Все поля обязательны для заполнения! Укажите количество для всех продуктов (можно указать 0).</div>';
+                // ИСПРАВЛЕНИЕ: Разблокируем кнопку при ошибке валидации
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Отправить данные';
+                return;
+            }
+            
+            // Финальная структура данных для n8n
+            const inventoryData = {
+                metadata: metadata,
+                products: products
+            };
+            
+            try {
+                const webhookUrl = 'https://n8n.troshinsasha.ru/webhook/inventory';
+                
+                console.log('Отправляем оптимизированные данные для n8n:', inventoryData);
+                
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify(inventoryData)
+                });
+                
+                console.log('Статус ответа:', response.status);
+                
+                if (response.ok) {
+                    // Меняем текст кнопки на "Отправлено"
+                    submitBtn.textContent = 'Отправлено';
+                    
+                    messageDiv.innerHTML = '<div class="success">Данные успешно отправлены!</div>';
+                    
+                    // Очищаем форму после успешной отправки
+                    for (let i = 1; i <= window.products.length; i++) {
+                        document.getElementById(`item${i}`).value = '';
+                    }
+                    
+                    // Сбрасываем остатки в объектах продуктов
+                    window.products.forEach(product => {
+                        product.остаток = 0;
+                    });
+                    
+                    // Разблокируем кнопку через 3 секунды
+                    setTimeout(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Отправить данные';
+                    }, 3000);
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                console.error('Детали ошибки:', error);
+                
+                if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    messageDiv.innerHTML = '<div class="error">Ошибка CORS или сетевая ошибка. Проверьте настройки webhook.</div>';
+                } else {
+                    messageDiv.innerHTML = `<div class="error">Ошибка: ${error.message}</div>`;
+                }
+                
+                // Разблокируем кнопку при ошибке
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Отправить данные';
+                
+                console.log('Данные инвентаризации:', inventoryData);
+            }
+        }
+        
+    </script>
+    </body>
+    </html>
